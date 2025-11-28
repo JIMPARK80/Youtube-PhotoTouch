@@ -2,155 +2,65 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brightness Editor</title>
-<style>
-    body { font-family: Arial; padding: 20px; }
-    #preview { max-width: 400px; margin-top: 20px; }
-    .control-group { margin: 15px 0; }
-    canvas { 
-        border: 1px solid #ccc; 
-        max-width: 100%; 
-        display: block; 
-        margin-top: 20px;
-    }
-    button { padding: 8px 16px; margin: 5px; cursor: pointer; }
-    input[type="color"] { width: 50px; height: 30px; cursor: pointer; }
-    p { color: #666; font-size: 14px; }
-    .info { background: #e3f2fd; padding: 10px; border-radius: 4px; margin: 10px 0; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="container">
+        <header class="header">
+            <h1>✨ Brightness Editor</h1>
+            <p class="subtitle">이미지 밝기를 실시간으로 조절하세요</p>
+        </header>
 
-<!--
-🎨 Wireframe — Image Brightness Editor (Web App)
-🎨 와이어프레임 — 이미지 밝기 조절 웹앱
- ---------------------------------------------------------
-|                   Image Brightness Editor               |
-|---------------------------------------------------------|
-|  [Upload Image Button]                                  |
-|                                                         |
-|  Brightness: [ -150 ----(slider)---- +150 ]    (value)  |
-|                                                         |
-|---------------------------------------------------------|
-|                                                         |
-|                     [ Canvas Area ]                    |
-|               (Image preview shown here)                |
-|                                                         |
- ---------------------------------------------------------
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="upload-section">
+                    <label for="upload" class="upload-label">
+                        <span class="upload-icon">📁</span>
+                        <span class="upload-text">이미지 선택</span>
+                    </label>
+                    <input type="file" id="upload" accept="image/*" hidden>
+                    <span class="file-name" id="fileName">선택된 파일 없음</span>
+                </div>
 
-This wireframe shows a minimal, clean, and functional layout.
-이 와이어프레임은 최소하고 깨끗하며 기능적인 레이아웃을 보여줍니다.
+                <div class="control-group">
+                    <div class="slider-container">
+                        <label class="slider-label">
+                            <span class="label-text">밝기 조절</span>
+                            <span class="value-display" id="value">0</span>
+                        </label>
+                        <div class="slider-wrapper">
+                            <span class="slider-min">-150</span>
+                            <input type="range" id="brightness" class="slider" min="-150" max="150" value="0">
+                            <span class="slider-max">+150</span>
+                        </div>
+                    </div>
+                </div>
 
-It places the upload and brightness controls at the top for easy access.
-업로드와 밝기 조절 컨트롤을 상단에 배치해 쉽게 접근할 수 있게 했습니다.
+                <div class="button-group">
+                    <button id="resetBtn" class="btn btn-secondary" disabled>
+                        <span>🔄</span> 초기화
+                    </button>
+                    <button id="downloadBtn" class="btn btn-primary" disabled>
+                        <span>💾</span> 다운로드
+                    </button>
+                </div>
+            </div>
 
-It keeps the canvas preview large and centered for visibility.
-캔버스 프리뷰는 크게 중앙에 배치해 가시성을 높였습니다.
+            <div class="preview-section">
+                <div class="canvas-container" id="canvasContainer">
+                    <canvas id="canvas"></canvas>
+                    <div class="placeholder" id="placeholder">
+                        <div class="placeholder-icon">🖼️</div>
+                        <p>이미지를 업로드하세요</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-🧱 Detailed Wireframe with Layout Sections
-🧱 레이아웃 구역을 나눈 상세 와이어프레임
-
-+--------------------------------------------------------------+
-| HEADER                                                       |
-|   - Title: "Brightness Editor"                               |
-+--------------------------------------------------------------+
-| CONTROL PANEL                                                |
-|   - Upload Image (Button)                                    |
-|   - Brightness Slider (-150 ~ +150)                          |
-|   - Real-time Value Display                                  |
-+--------------------------------------------------------------+
-| IMAGE AREA                                                   |
-|   - Canvas                                                   |
-|   - Responsive, centered                                     |
-+--------------------------------------------------------------+
-
-This version helps if you want a structured UI in Tauri, Vanilla JS, or Vue later.
-이 버전은 나중에 Tauri, 바닐라 JS, 또는 Vue로 UI를 구성할 때 도움이 됩니다.
--->
-
-<h2>Brightness Editor</h2>
-<input type="file" id="upload" accept="image/*"><br><br>
-
-<div class="control-group">
-    <label>Brightness: <span id="value">0</span></label><br>
-    <input type="range" id="brightness" min="-150" max="150" value="0">
-</div>
-
-<div class="control-group">
-    <button id="downloadBtn">다운로드 / Download</button>
-</div>
-
-<canvas id="canvas"></canvas>
-
-<script>
-let originalImage = null;
-let processedImageData = null;
-
-const upload = document.getElementById("upload");
-const brightnessSlider = document.getElementById("brightness");
-const valueLabel = document.getElementById("value");
-const downloadBtn = document.getElementById("downloadBtn");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-// Load image
-upload.addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    const img = new Image();
-    img.onload = function () {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        originalImage = img;
-        ctx.drawImage(img, 0, 0);
-        processedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
-    };
-    img.src = URL.createObjectURL(file);
-});
-
-// Brightness adjustment
-brightnessSlider.addEventListener("input", function () {
-    const value = parseInt(this.value);
-    valueLabel.textContent = value;
-    if (!originalImage) return;
-    
-    applyFilters();
-});
-
-
-// Download image
-function downloadImage() {
-    if (!canvas) return;
-    const link = document.createElement("a");
-    link.download = "edited-image.png";
-    link.href = canvas.toDataURL();
-    link.click();
-}
-
-// Apply brightness filter
-function applyFilters() {
-    if (!originalImage) return;
-    
-    ctx.drawImage(originalImage, 0, 0);
-    let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let data = imgData.data;
-    
-    // Apply brightness
-    const brightnessValue = parseInt(brightnessSlider.value);
-    for (let i = 0; i < data.length; i += 4) {
-        data[i]     = Math.min(255, Math.max(0, data[i] + brightnessValue));
-        data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + brightnessValue));
-        data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + brightnessValue));
-    }
-    
-    ctx.putImageData(imgData, 0, 0);
-    processedImageData = imgData;
-}
-
-// Event listeners
-downloadBtn.addEventListener("click", downloadImage);
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
 
