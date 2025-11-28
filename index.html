@@ -9,8 +9,8 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>✨ Brightness Editor</h1>
-            <p class="subtitle">이미지 밝기를 실시간으로 조절하세요</p>
+            <h1>✨ Brightness Editor / 밝기 편집기</h1>
+            <p class="subtitle">Adjust image brightness in real-time / 이미지 밝기를 실시간으로 조절하세요</p>
         </header>
 
         <div class="main-content">
@@ -18,16 +18,16 @@
                 <div class="upload-section">
                     <label for="upload" class="upload-label">
                         <span class="upload-icon">📁</span>
-                        <span class="upload-text">이미지 선택</span>
+                        <span class="upload-text">Select Image / 이미지 선택</span>
                     </label>
                     <input type="file" id="upload" accept="image/*" hidden>
-                    <span class="file-name" id="fileName">선택된 파일 없음</span>
+                    <span class="file-name" id="fileName">No file selected / 선택된 파일 없음</span>
                 </div>
 
                 <div class="control-group">
                     <div class="slider-container">
                         <label class="slider-label">
-                            <span class="label-text">밝기 조절</span>
+                            <span class="label-text">Brightness Adjustment / 밝기 조절</span>
                             <span class="value-display" id="value">0</span>
                         </label>
                         <div class="slider-wrapper">
@@ -40,10 +40,10 @@
 
                 <div class="button-group">
                     <button id="resetBtn" class="btn btn-secondary" disabled>
-                        <span>🔄</span> 초기화
+                        <span>🔄</span> Reset / 초기화
                     </button>
                     <button id="downloadBtn" class="btn btn-primary" disabled>
-                        <span>💾</span> 다운로드
+                        <span>💾</span> Download / 다운로드
                     </button>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                     <canvas id="canvas"></canvas>
                     <div class="placeholder" id="placeholder">
                         <div class="placeholder-icon">🖼️</div>
-                        <p>이미지를 업로드하세요</p>
+                        <p>Upload an image / 이미지를 업로드하세요</p>
                     </div>
                 </div>
             </div>

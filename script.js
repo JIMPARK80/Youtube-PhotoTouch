@@ -53,8 +53,8 @@ upload.addEventListener("change", function(e) {
     };
     
     img.onerror = function() {
-        alert("이미지를 불러올 수 없습니다. 다른 파일을 선택해주세요.");
-        fileName.textContent = "선택된 파일 없음";
+        alert("Unable to load image. Please select another file. / 이미지를 불러올 수 없습니다. 다른 파일을 선택해주세요.");
+        fileName.textContent = "No file selected / 선택된 파일 없음";
     };
     
     img.src = URL.createObjectURL(file);
